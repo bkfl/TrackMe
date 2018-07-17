@@ -1,0 +1,26 @@
+body {
+    background: rgb(0, 26, 51);
+}
+
+.container {
+    width: 80%;
+    margin: 50px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+h1 {
+    font: 3em Verdana Black;
+}
+
+h2 {
+    font: 2em Verdana;
+}
+
+p, li {
+    font-family: Verdana;
+}
+
+li {
+    padding: 1px 0;
+}
