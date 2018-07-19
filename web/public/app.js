@@ -67,7 +67,6 @@ $('#login').on('click', () => {
     const password = $('#password').val();
     const exists = users.find(user => user.username === username);
     if (exists != undefined && password === exists.password) {
-        alert(exists.username);
         localStorage.setItem('isAuthenticated', true);
         location.href = '/';
     } else {
