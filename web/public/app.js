@@ -1,6 +1,21 @@
 // General
-const devices = JSON.parse(localStorage.getItem('devices')) || [];
+const response = $.get('http://localhost:3001/devices')
+    .then(response => {
+        response.forEach(device => {
+            $('#devices tbody').append(`
+            <tr>
+            <td>${device.user}</td>
+            <td>${device.name}</td>
+            </tr>`
+            );
+        });
+    })
+    .catch(error => {
+        console.log(`Error: ${error}`);
+    });
+
 const users = JSON.parse(localStorage.getItem('users')) || [];
+
 const logout = () => {
     localStorage.removeItem('isAuthenticated');
     location.href = '/login';
@@ -9,23 +24,23 @@ const logout = () => {
 $('#navbar').load('navbar.html');
 $('#footer').load('footer.html');
 
-// device-list.html
-devices.forEach((device) => {
-    $('#devices tbody').append(`
-    <tr>
-    <td>${device.user}</td>
-    <td>${device.name}</td>
-    </tr>`
-    );
-});
-
 // register-device.html
 $('#add-device').on('click', () => {
-    const user = $('#user').val();
     const name = $('#name').val();
-    devices.push({ user, name });
-    localStorage.setItem('devices', JSON.stringify(devices));
-    location.href = '/';
+    const user = $('#user').val();
+    const sensorData = [];
+    const body = {
+        name,
+        user,
+        sensorData
+    };
+    $.post('http://localhost:3001/devices', body)
+        .then(response => {
+            location.href = '/';
+        })
+        .catch(error => {
+            console.error(`Error: ${error}`);
+        });
 });
 
 // send-command.html
