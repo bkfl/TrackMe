@@ -1,5 +1,7 @@
+const API_URL = 'http://localhost:5000/api';
+
 // General
-const response = $.get('http://localhost:3001/devices')
+const response = $.get(`${API_URL}/devices`)
     .then(response => {
         response.forEach(device => {
             $('#devices tbody').append(`
@@ -34,7 +36,7 @@ $('#add-device').on('click', () => {
         user,
         sensorData
     };
-    $.post('http://localhost:3001/devices', body)
+    $.post(`${API_URL}/devices`, body)
         .then(response => {
             location.href = '/';
         })
