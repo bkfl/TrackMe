@@ -1,25 +1,51 @@
 const API_URL = 'http://localhost:5000/api';
 
-// General
-const response = $.get(`${API_URL}/devices`)
-    .then(response => {
-        response.forEach(device => {
-            $('#devices tbody').append(`
-            <tr>
-            <td>${device.user}</td>
-            <td>${device.name}</td>
-            </tr>`
-            );
+// devices.html
+const currentUser = localStorage.getItem('user');
+
+if (currentUser) {
+    $.get(`${API_URL}/users/${currentUser}/devices`)
+        .then(response => {
+            response.forEach((device) => {
+                $('#devices tbody').append(`
+                    <tr data-device-id=${device._id}>
+                        <td>${device.user}</td>
+                        <td>${device.name}</td>
+                    </tr>`
+                );
+            });
+            $('#devices tbody tr').on('click', (e) => {
+                const deviceId = e.currentTarget.getAttribute('data-device-id');
+                $.get(`${API_URL}/devices/${deviceId}/device-history`)
+                    .then(response => {
+                        response.map(sensorData => {
+                            $('#historyContent').append(`
+                                <tr>
+                                    <td>${sensorData.ts}</td>
+                                    <td>${sensorData.temp}</td>
+                                    <td>${sensorData.loc.lat}</td>
+                                    <td>${sensorData.loc.lon}</td>
+                                </tr>`
+                            );
+                        });
+                        $('#historyModal').modal('show');
+                    });
+            });
+        })
+        .catch(error => {
+            console.error(`Error: ${error}`);
         });
-    })
-    .catch(error => {
-        console.log(`Error: ${error}`);
-    });
+} else {
+    const path = window.location.pathname;
+    if (path !== '/login' && path !== '/registration') {
+        location.href = '/login';
+    }
+}
 
-const users = JSON.parse(localStorage.getItem('users')) || [];
-
+// navbar.html
 const logout = () => {
-    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('user');
+    localStorage.removeItem('isAdmin');
     location.href = '/login';
 }
 
@@ -53,45 +79,45 @@ $('#send-command').on('click', () => {
 
 // registration.html
 $('#register').on('click', () => {
-    const username = $('#username').val();
+    const user = $('#user').val();
     const password = $('#password').val();
-    const confirm = $('#confirm-password').val();
-    const exists = users.find(user => user.username === username);
-    if (exists != undefined) {
+    const confirm_password = $('#confirm-password').val();
+    const isAdmin = false;
+    if (password != confirm_password) {
         $('#message').empty();
-        $('#message').append(`
-        <div class="alert alert-danger">
-            <strong>Error:</strong> That username already exists. Please enter a different username.
-        </div>
-        `);
-    } else if (password != confirm) {
-        $('#message').empty();
-        $('#message').append(`
-        <div class="alert alert-danger">
-            <strong>Error:</strong> The entered passwords do not match.
-        </div>
-        `);
+        $('#message').append('<p class="alert alert-danger">The passwords do not match</p>');
     } else {
-        users.push({ username, password });
-        localStorage.setItem('users', JSON.stringify(users));
-        location.href = '/login';
+        $.post(`${API_URL}/register`, { user, password, isAdmin })
+            .then(response => {
+                if (response.success) {
+                    location.href = '/login';
+                } else {
+                    $('#message').empty();
+                    $('#message').append(`<p class="alert alert-danger">${response.message}</p>`);
+                }
+            })
+            .catch(error => {
+                console.error(`Error: ${error}`);
+            });
     }
 });
 
 // login.html
 $('#login').on('click', () => {
-    const username = $('#username').val();
+    const user = $('#user').val();
     const password = $('#password').val();
-    const exists = users.find(user => user.username === username);
-    if (exists != undefined && password === exists.password) {
-        localStorage.setItem('isAuthenticated', true);
-        location.href = '/';
-    } else {
-        $('#message').empty();
-        $('#message').append(`
-        <div class="alert alert-danger">
-            Incorrect username or password.
-        </div>
-        `);
-    }
+    $.post(`${API_URL}/authenticate`, { user, password })
+        .then(response => {
+            if (response.success) {
+                localStorage.setItem('user', user);
+                localStorage.setItem('isAdmin', response.isAdmin);
+                location.href = '/';
+            } else {
+                $('#message').empty();
+                $('#message').append(`<p class="alert alert-danger">${response.message}</p>`);
+            }
+        })
+        .catch(error => {
+            console.error(`Error: ${error}`);
+        });
 });

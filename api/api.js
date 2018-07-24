@@ -49,25 +49,28 @@ app.post('/api/devices', (req, res) => {
     });
 });
 
+app.get('/api/users/:user/devices', (req, res) => {
+    const { user } = req.params;
+    Device.find({ "user": user }, (err, devices) => {
+        return err
+            ? res.send(err)
+            : res.send(devices);
+    });
+});
+
 app.post('/api/send-command', (req, res) => {
     console.log(req.body.command);
 });
 
 app.post('/api/authenticate', (req, res) => {
     const { user, password } = req.body;
-    User.findOne({ user }, (err, found) => {
+    User.findOne({ 'user': user }, (err, found) => {
         if (err) {
             return res.send(err)
-        } else if (!found) {
+        } else if (!found || password != found.password) {
             return res.json({
                 success: false,
-                message: 'User not found',
-                isAdmin: false
-            });
-        } else if (password != found.password) {
-            return res.json({
-                success: false,
-                message: 'Incorrect password',
+                message: 'Incorrect username or password',
                 isAdmin: false
             })
         } else {
@@ -82,7 +85,7 @@ app.post('/api/authenticate', (req, res) => {
 
 app.post('/api/register', (req, res) => {
     const { user, password, isAdmin } = req.body;
-    User.findOne({ user }, (err, found) => {
+    User.findOne({ 'user': user }, (err, found) => {
         if (err) {
             return res.send(err);
         } else if (found) {
@@ -105,6 +108,16 @@ app.post('/api/register', (req, res) => {
                     })
             })
         }
+    });
+});
+
+app.get('/api/devices/:deviceId/device-history', (req, res) => {
+    const { deviceId } = req.params;
+    Device.findOne({ '_id': deviceId }, (err, device) => {
+        const { sensorData } = device;
+        return err
+            ? res.send(err)
+            : res.send(sensorData);
     });
 });
 
