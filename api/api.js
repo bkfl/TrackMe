@@ -10,10 +10,8 @@ const User = require('./models/user');
 
 var bodyParser = require('body-parser');
 
-// Parse body data using body-parser package
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+// Parse body using body-parser
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Add header to allow multiple response origins
@@ -23,9 +21,39 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.get('/api/test', (req, res) => {
-    res.send('The API is working!');
-});
+/**
+ * @api {get} /api/devices Request array of all devices
+ * @apiGroup Device
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *  [
+ *      {
+ *          "_id": "dsohsdohsdofhsofhosfhsofh",
+ *          "name": "Mary's iPhone",
+ *          "user": "mary",
+ *          "sensorData": [
+ *              {
+ *                  "ts": "1529542230",
+ *                  "temp": 12,
+ *                  "loc": {
+ *                      "lat": -37.84674,
+ *                      "lon": 145.115113
+ *                  }
+ *              },
+ *              {
+ *                  "ts": "1529572230",
+ *                  "temp": 17,
+ *                  "loc": {
+ *                      "lat": -37.850026,
+ *                      "lon": 145.117683
+ *                  }
+ *              }
+ *          ]
+ *      }
+ *  ]
+ * 
+ * @apiError {String} err API error message
+ */
 
 app.get('/api/devices', (req, res) => {
     Device.find({}, (err, devices) => {
@@ -34,6 +62,22 @@ app.get('/api/devices', (req, res) => {
             : res.send(devices);
     });
 });
+
+/**
+ * @api {post} /api/devices Add a new device
+ * @apiGroup Device
+ * 
+ * @apiParam {String} name Device name
+ * @apiParam {String} user Device owner
+ * @apiParam {Array} sensorData Array of device sensor data
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *  {
+ *      "Successfully added device and data"
+ *  }
+ * 
+ * @apiError {String} err API error message
+ */
 
 app.post('/api/devices', (req, res) => {
     const { name, user, sensorData } = req.body;
@@ -45,9 +89,45 @@ app.post('/api/devices', (req, res) => {
     newDevice.save(err => {
         return err
             ? res.send(err)
-            : res.send('successfully added device and data');
+            : res.send('Successfully added device and data');
     });
 });
+
+/**
+ * @api {get} /api/users/:user/devices Request array of devices for single user
+ * @apiGroup Device
+ *
+ * @apiParam {string} :user User id
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *  [
+ *      {
+ *          "_id": "dsohsdohsdofhsofhosfhsofh",
+ *          "name": "Mary's iPhone",
+ *          "user": "mary",
+ *          "sensorData": [
+ *              {
+ *                  "ts": "1529542230",
+ *                  "temp": 12,
+ *                  "loc": {
+ *                      "lat": -37.84674,
+ *                      "lon": 145.115113
+ *                  }
+ *              },
+ *              {
+ *                  "ts": "1529572230",
+ *                  "temp": 17,
+ *                  "loc": {
+ *                      "lat": -37.850026,
+ *                      "lon": 145.117683
+ *                  }
+ *              }
+ *          ]
+ *      }
+ *  ]
+ * 
+ * @apiError {String} err API error message
+ */
 
 app.get('/api/users/:user/devices', (req, res) => {
     const { user } = req.params;
@@ -58,9 +138,78 @@ app.get('/api/users/:user/devices', (req, res) => {
     });
 });
 
+/**
+ * @api {get} /api/devices/:deviceId/device-history Request array of sensor data for single device
+ * @apiGroup Device
+ * 
+ * @apiParam :deviceId Device id
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *  [
+ *      {
+ *          "ts": "1529542230",
+ *          "temp": 12,
+ *          "loc": {
+ *            "lat": -37.84674,
+ *            "lon": 145.115113
+ *           }
+ *      },
+ *      {
+ *          "ts": "1529572230",
+ *          "temp": 17,
+ *          "loc": {
+ *              "lat": -37.850026,
+ *              "lon": 145.117683
+ *          }
+ *      }
+ *  ]
+ * 
+ * @apiError {String} err API error message
+ */
+
+app.get('/api/devices/:deviceId/device-history', (req, res) => {
+    const { deviceId } = req.params;
+    Device.findOne({ '_id': deviceId }, (err, device) => {
+        const { sensorData } = device;
+        return err
+            ? res.send(err)
+            : res.send(sensorData);
+    });
+});
+
+/**
+ * @apiIgnore Not Implemented
+ * @api {post} /api/send-command Send a command to a device
+ * @apiGroup Device 
+ */
+
 app.post('/api/send-command', (req, res) => {
     console.log(req.body.command);
 });
+
+/**
+ * @api {post} /api/authenticate Authenticate user credentials
+ * @apiGroup User
+ * 
+ * @apiParam {String} user User's name / login
+ * @apiParam {String} password User's password
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *  {
+ *      success: true,
+ *      message: 'Authenticated successfully',
+ *      isAdmin: (true | false)
+ *  }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *  {
+ *      success: false,
+ *      message: 'Incorrect username or password',
+ *      isAdmin: false
+ *  }
+ * 
+ * @apiError {String} err API error message
+ */
 
 app.post('/api/authenticate', (req, res) => {
     const { user, password } = req.body;
@@ -82,6 +231,29 @@ app.post('/api/authenticate', (req, res) => {
         }
     });
 });
+
+/**
+ * @api {post} /api/register Create new user
+ * @apiGroup User
+ * 
+ * @apiParam {String} user User's name / login
+ * @apiParam {String} password User's password
+ * @apiParam {Boolean} isAdmin Is the user an administrator?
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *  {
+ *      success: true,
+ *      message: 'Created new user'
+ *  }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *  {
+ *      success: false,
+ *      message: 'User already exists'
+ *  }
+ * 
+ * @apiError {String} err API error message
+ */
 
 app.post('/api/register', (req, res) => {
     const { user, password, isAdmin } = req.body;
@@ -111,14 +283,9 @@ app.post('/api/register', (req, res) => {
     });
 });
 
-app.get('/api/devices/:deviceId/device-history', (req, res) => {
-    const { deviceId } = req.params;
-    Device.findOne({ '_id': deviceId }, (err, device) => {
-        const { sensorData } = device;
-        return err
-            ? res.send(err)
-            : res.send(sensorData);
-    });
+app.use(express.static(`${__dirname}/public`));
+app.get('/docs', (req, res) => {
+    res.sendFile(`${__dirname}/public/generated-docs/index.html`);
 });
 
 // Start listening
