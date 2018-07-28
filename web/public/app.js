@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://217603898-sit-209.now.sh/api';
 
 // devices.html
 const currentUser = localStorage.getItem('user');
