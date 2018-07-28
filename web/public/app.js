@@ -1,5 +1,5 @@
 const API_URL = 'https://217603898-sit-209.now.sh/api';
-const MQTT_URL = 'https://217603898-sit-209.now.sh-mqtt';
+const MQTT_URL = 'https://217603898-sit-209-mqtt.now.sh';
 
 // devices.html
 const currentUser = localStorage.getItem('user');
