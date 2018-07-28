@@ -1,0 +1,5 @@
+# node packages
+/web/node_modules
+/api/node_modules
+/api/public/generated-docs
+/mqtt/node_modules
