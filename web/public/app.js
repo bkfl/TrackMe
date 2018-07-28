@@ -1,4 +1,5 @@
 const API_URL = 'https://217603898-sit-209.now.sh/api';
+const MQTT_URL = 'https://217603898-sit-209.now.sh-mqtt';
 
 // devices.html
 const currentUser = localStorage.getItem('user');
@@ -73,8 +74,13 @@ $('#add-device').on('click', () => {
 
 // send-command.html
 $('#send-command').on('click', () => {
+    const deviceId = $("#device-id").val();
     const command = $('#command').val();
-    console.log(`command is: ${command}`);
+    const body = {
+        deviceId,
+        command
+    };
+    $.post(`${MQTT_URL}/send-command`, body);
 });
 
 // registration.html

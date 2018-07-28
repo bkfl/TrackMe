@@ -178,16 +178,6 @@ app.get('/api/devices/:deviceId/device-history', (req, res) => {
 });
 
 /**
- * @apiIgnore Not Implemented
- * @api {post} /api/send-command Send a command to a device
- * @apiGroup Device 
- */
-
-app.post('/api/send-command', (req, res) => {
-    console.log(req.body.command);
-});
-
-/**
  * @api {post} /api/authenticate Authenticate user credentials
  * @apiGroup User
  * 

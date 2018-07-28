@@ -1,0 +1,23 @@
+{
+  "name": "mqtt-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "mqtt.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon -r dotenv/config mqtt.js",
+    "deploy": "now remove 217603898-sit-209-mqtt -y && now -p && now alias"
+  },
+  "author": "Brenton Fleming",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "mqtt": "^2.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.3",
+    "now": "^11.3.2"
+  }
+}
