@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon -r dotenv/config mqtt.js",
-    "deploy": "now remove 217603898-sit-209-mqtt -y && now -p && now alias"
+    "deploy": "now remove 217603898-sit-209-mqtt -y && now -p && now alias",
+    "doc": "apidoc -o public/generated-docs/ -e node_modules/"
   },
   "author": "Brenton Fleming",
   "license": "ISC",
@@ -14,9 +15,13 @@
     "body-parser": "^1.18.3",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
-    "mqtt": "^2.18.3"
+    "mongoose": "^5.2.7",
+    "mqtt": "^2.18.3",
+    "random-coordinates": "^1.0.1",
+    "random-int": "^1.0.0"
   },
   "devDependencies": {
+    "apidoc": "^0.17.6",
     "nodemon": "^1.18.3",
     "now": "^11.3.2"
   }

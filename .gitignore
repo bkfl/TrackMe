@@ -1,6 +1,14 @@
-# node packages
 /web/node_modules
+
 /api/node_modules
-/tests/node_modules
+
 /api/public/generated-docs
+
+/tests/node_modules
+
 /mqtt/node_modules
+
+/mqtt/public/generated-docs
+
+*/node_modules
+*/generated-docs
